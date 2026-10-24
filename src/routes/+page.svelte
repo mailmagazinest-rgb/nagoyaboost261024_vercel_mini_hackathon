@@ -1,31 +1,166 @@
-<!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="theme-color" content="#102b48">
-<title>愛知の空 | 今日の天気</title>
+<script lang="ts">
+	import { enhance } from '$app/forms';
+	import type { ActionData, PageData } from './$types';
+
+	let { data, form }: { data: PageData; form: ActionData } = $props();
+
+	let drawing = $state(false);
+
+	const rankTone: Record<string, string> = {
+		大吉: '#c9a227',
+		中吉: '#b3261e',
+		小吉: '#b3261e',
+		吉: '#3f6d4e',
+		末吉: '#3f6d4e',
+		凶: '#4a4a4a',
+		大凶: '#2b2b2b'
+	};
+</script>
+
+<svelte:head>
+	<title>おみくじ</title>
+	<meta name="description" content="SvelteKit 製のおみくじアプリ" />
+</svelte:head>
+
+<section class="card">
+	<h1>今日の運勢を占う</h1>
+	<p class="lead">おみくじを引くと、結果が自動で記録に残ります。</p>
+
+	<form
+		method="POST"
+		action="?/draw"
+		use:enhance={() => {
+			drawing = true;
+			return async ({ update }) => {
+				await update({ reset: false });
+				drawing = false;
+			};
+		}}
+	>
+		<button type="submit" disabled={drawing}>
+			{drawing ? '引いています…' : 'おみくじを引く'}
+		</button>
+	</form>
+
+	{#if form?.result}
+		<div class="result" style="--tone: {rankTone[form.result.rank] ?? 'var(--accent)'}">
+			<p class="rank">{form.result.rank}</p>
+			<p class="message">{form.result.message}</p>
+			<dl>
+				<div><dt>ラッキーカラー</dt><dd>{form.result.lucky.color}</dd></div>
+				<div><dt>ラッキーアイテム</dt><dd>{form.result.lucky.item}</dd></div>
+				<div><dt>ラッキーナンバー</dt><dd>{form.result.lucky.number}</dd></div>
+			</dl>
+			{#if !form.persisted}
+				<p class="warn">
+					※ 記録は一時保存です（Redis 未接続）。Upstash を設定すると永続化されます。
+				</p>
+			{/if}
+		</div>
+	{:else if data.lastDrawnAt}
+		<p class="note">
+			前回引いた日時: {new Date(data.lastDrawnAt).toLocaleString('ja-JP')}
+		</p>
+	{/if}
+
+	<p class="note">
+		<a href="/history">おみくじ記録を見る →</a>
+	</p>
+</section>
+
 <style>
-:root{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN','Yu Gothic',Meiryo,sans-serif;color:#162c43;background:#e8f0f7}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(155deg,#c8e4fa 0%,#e9f2fb 42%,#f9f4eb 100%)}.wrap{max-width:980px;margin:auto;padding:30px 20px 50px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:28px}.brand{font-weight:900;font-size:23px;letter-spacing:.02em}.muted{color:#65788b;font-size:13px}.tag{background:#fff9;padding:9px 15px;border:1px solid #ffffffa6;border-radius:100px;color:#315a7b;font-size:12px}.hero{background:linear-gradient(120deg,#133f67,#2b79ad 70%,#72afd1);border-radius:30px;padding:33px;color:white;box-shadow:0 18px 45px #234b7028;position:relative;overflow:hidden}.hero:before{content:'☁';position:absolute;right:45px;top:36px;font-size:145px;opacity:.15;pointer-events:none}.selectrow{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}.selectrow h1{margin:4px 0 2px;font-size:clamp(24px,4vw,36px)}select,button{font:inherit}select{background:#ffffffed;border:0;border-radius:12px;padding:12px 14px;color:#173e60;min-width:160px;font-weight:700;cursor:pointer}.large{display:flex;align-items:center;gap:16px;margin:28px 0 15px}.weather-emoji{font-size:74px;filter:drop-shadow(0 8px 10px #113e582f);line-height:1}.temp{font-size:clamp(64px,10vw,92px);font-weight:300;line-height:1;letter-spacing:-5px}.weather-text{font-size:22px;font-weight:700}.hero-meta{opacity:.87;font-size:14px;margin-top:5px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:24px}.stat{background:#ffffff20;border:1px solid #ffffff2b;border-radius:18px;padding:16px}.stat strong{display:block;font-size:23px;margin-top:8px}.stat .muted{color:#d9eafa}.cards{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;margin-top:20px}.card{background:#fff;border:1px solid #e7edf1;border-radius:24px;padding:23px;box-shadow:0 8px 25px #1f47600b}.card h2{margin:0 0 18px;font-size:18px}.hourly{display:flex;gap:11px;overflow-x:auto;padding:5px 2px 10px;scrollbar-color:#cad9e5 transparent}.hour{flex:0 0 81px;text-align:center;background:#f4f8fb;border-radius:16px;padding:15px 6px}.hour .ico{font-size:28px;margin:14px 0}.hour b{font-size:16px}.hour .rain{font-size:12px;color:#2279ac;margin-top:8px}.detail{display:grid;grid-template-columns:1fr 1fr;gap:15px}.detail>div{background:#f4f8fb;padding:13px;border-radius:14px}.detail strong{display:block;margin-top:6px;font-size:19px}.detail span{font-size:12px;color:#668094}.advice{margin-top:18px;padding:16px 18px;background:#f1f7fc;border-radius:15px;line-height:1.7;font-size:14px}.foot{margin-top:18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;align-items:center;font-size:12px;color:#6d8090}.refresh{background:#fff;border:1px solid #c9d9e8;border-radius:12px;padding:10px 14px;color:#245f8c;cursor:pointer;font-weight:700}.refresh:hover{background:#eaf6ff}.err{color:#af3047;background:#fff2f2;padding:12px 16px;border-radius:12px;margin:14px 0;display:none}.loading{opacity:.68}a{color:#246b9f}@media(max-width:680px){.wrap{padding:19px 13px 35px}.hero{padding:23px 20px;border-radius:24px}.stats{gap:8px}.stat{padding:12px 9px}.stat strong{font-size:19px}.stat .muted{font-size:11px}.cards{grid-template-columns:1fr}.large{gap:10px}.weather-emoji{font-size:60px}.brand{font-size:19px}.tag{font-size:10px;padding:8px}}
+	.card {
+		background: var(--surface);
+		border: 1px solid var(--line);
+		border-radius: 1rem;
+		padding: 2rem 1.5rem;
+		text-align: center;
+	}
+
+	h1 {
+		margin: 0 0 0.25rem;
+		font-size: 1.4rem;
+	}
+
+	.lead {
+		margin: 0 0 1.75rem;
+		color: var(--muted);
+		font-size: 0.9rem;
+	}
+
+	button {
+		font: inherit;
+		font-weight: 700;
+		padding: 0.85rem 2.5rem;
+		border: none;
+		border-radius: 999px;
+		background: var(--accent);
+		color: #fff;
+		cursor: pointer;
+	}
+
+	button:disabled {
+		opacity: 0.6;
+		cursor: progress;
+	}
+
+	.result {
+		margin-top: 2rem;
+		padding-top: 1.5rem;
+		border-top: 1px dashed var(--line);
+	}
+
+	.rank {
+		margin: 0;
+		font-size: 3rem;
+		font-weight: 800;
+		letter-spacing: 0.1em;
+		color: var(--tone);
+	}
+
+	.message {
+		margin: 0.5rem 0 1.5rem;
+	}
+
+	dl {
+		display: grid;
+		gap: 0.5rem;
+		margin: 0;
+		text-align: left;
+		max-width: 20rem;
+		margin-inline: auto;
+	}
+
+	dl > div {
+		display: flex;
+		justify-content: space-between;
+		border-bottom: 1px solid var(--line);
+		padding-bottom: 0.25rem;
+	}
+
+	dt {
+		color: var(--muted);
+		font-size: 0.85rem;
+	}
+
+	dd {
+		margin: 0;
+		font-weight: 600;
+	}
+
+	.warn {
+		margin-top: 1.25rem;
+		font-size: 0.75rem;
+		color: var(--muted);
+	}
+
+	.note {
+		margin-top: 1.5rem;
+		font-size: 0.85rem;
+		color: var(--muted);
+	}
+
+	.note a {
+		color: var(--accent);
+	}
 </style>
-</head>
-<body><main class="wrap">
-<header class="top"><div><div class="brand">☀ 愛知の空 <span style="font-weight:400">|</span> 天気予報</div><div class="muted">今日のお出かけを、もっと快適に。</div></div><div class="tag" id="clock">日本時間</div></header>
-<section class="hero" id="hero"><div class="selectrow"><div><div style="opacity:.78;font-size:13px" id="date">今日の天気</div><h1 id="cityTitle">名古屋市</h1></div><label><span class="muted" style="color:#e0eff9;display:block;margin-bottom:6px">地域を選択</span><select id="city" aria-label="愛知県内の地域"><option value="nagoya">名古屋市</option><option value="toyota">豊田市</option><option value="okazaki">岡崎市</option><option value="toyohashi">豊橋市</option><option value="ichinomiya">一宮市</option><option value="nishio">西尾市</option><option value="handa">半田市</option><option value="gamagori">蒲郡市</option><option value="shinshiro">新城市</option></select></label></div>
-<div class="large"><div class="weather-emoji" id="emoji">☁️</div><div><div class="temp" id="temp">--°</div><div class="weather-text" id="condition">予報を取得中…</div><div class="hero-meta" id="feels">最新の天気情報を読み込みます</div></div></div>
-<div class="stats"><div class="stat"><div class="muted">🌡 最高 / 最低</div><strong id="highlow">--° / --°</strong></div><div class="stat"><div class="muted">☂ 今日の降水確率</div><strong id="precip">--%</strong></div><div class="stat"><div class="muted">💨 風速</div><strong id="wind">-- km/h</strong></div></div></section>
-<div class="err" id="error" role="alert"></div>
-<div class="cards"><section class="card"><h2>時間ごとの天気 <span class="muted" style="font-weight:400">（今日）</span></h2><div class="hourly" id="hours" aria-live="polite">天気データを取得中です…</div></section><section class="card"><h2>今日のポイント</h2><div class="detail"><div><span>☂ 現在の降水量</span><strong id="rain">-- mm</strong></div><div><span>💧 湿度</span><strong id="humidity">--%</strong></div><div><span>🌅 日の出</span><strong id="sunrise">--:--</strong></div><div><span>🌇 日の入り</span><strong id="sunset">--:--</strong></div></div><div class="advice" id="advice">予報をもとに、お出かけのヒントを表示します。</div></section></div>
-<footer class="foot"><div><div id="updated">更新日時：--</div><div>データ提供: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>（数値予報モデル）</div><div>※地域の代表地点の予報です。警報・注意報は<a href="https://www.jma.go.jp/bosai/" target="_blank" rel="noopener">気象庁</a>でご確認ください。</div></div><button class="refresh" id="refresh">↻ 最新情報に更新</button></footer>
-</main>
-<script>
-'use strict';
-const cities={nagoya:['名古屋市',35.1815,136.9066],toyota:['豊田市',35.083,137.156],okazaki:['岡崎市',34.955,137.173],toyohashi:['豊橋市',34.770,137.391],ichinomiya:['一宮市',35.303,136.803],nishio:['西尾市',34.862,137.062],handa:['半田市',34.894,136.938],gamagori:['蒲郡市',34.826,137.219],shinshiro:['新城市',34.900,137.498]};
-const $=id=>document.getElementById(id);let controller;
-const jDate=d=>new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'long',day:'numeric',weekday:'long'}).format(d);
-const jTime=d=>new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',hour:'2-digit',minute:'2-digit',hour12:false}).format(d);
-const desc=(c,day=true)=>{if(c===0)return ['快晴',day?'☀️':'🌙'];if(c===1)return ['晴れ',day?'🌤️':'🌙'];if(c===2)return ['晴れ時々くもり',day?'⛅':'☁️'];if(c===3)return ['くもり','☁️'];if([45,48].includes(c))return ['霧','🌫️'];if([51,53,55,56,57].includes(c))return ['霧雨','🌦️'];if([61,63,65,66,67].includes(c))return ['雨','🌧️'];if([71,73,75,77,85,86].includes(c))return ['雪','🌨️'];if([80,81,82].includes(c))return ['にわか雨','🌦️'];if([95,96,99].includes(c))return ['雷雨','⛈️'];return ['天気不明','🌤️']};
-const round=(v,unit='')=>v==null?'--':Math.round(v)+unit;
-const fmtHour=s=>s.slice(11,16);
-function tip(precip,high,wind){const lines=[];if(precip>=60)lines.push('雨が降る可能性が高いため、傘を持って出かけましょう。');else if(precip>=30)lines.push('にわか雨に備えて、折りたたみ傘があると安心です。');else lines.push('降水確率は比較的低めです。');if(high>=30)lines.push('日中は暑くなりそうです。こまめに水分補給を。');else if(high<=15)lines.push('気温が低めです。羽織れるものを用意しましょう。');if(wind>=30)lines.push('風が強いため、屋外での活動には注意してください。');return lines.join(' ')}
-async function load(){const code=$('city').value;const [name,lat,lon]=cities[code];$('cityTitle').textContent=name;$('error').style.display='none';$('hero').classList.add('loading');$('condition').textContent='予報を取得中…';$('hours').textContent='読み込み中…';if(controller)controller.abort();controller=new AbortController();const url=new URL('https://api.open-meteo.com/v1/forecast');Object.entries({latitude:lat,longitude:lon,timezone:'Asia/Tokyo',forecast_days:1,current:'temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,weather_code,wind_speed_10m,is_day',hourly:'temperature_2m,precipitation_probability,weather_code,is_day',daily:'temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset'}).forEach(([k,v])=>url.searchParams.set(k,v));try{const res=await fetch(url,{signal:controller.signal,cache:'no-store'});if(!res.ok)throw Error('HTTP '+res.status);const d=await res.json();if(!d.current||!d.daily)throw Error('必要なデータを取得できませんでした');const c=d.current,day=d.daily,h=d.hourly,now=new Date();$('date').textContent=jDate(now)+' の予報';$('clock').textContent=jTime(now)+' JST';const [label,icon]=desc(c.weather_code,!!c.is_day);$('emoji').textContent=icon;$('condition').textContent=label;$('temp').textContent=round(c.temperature_2m,'°');$('feels').textContent='体感温度 '+round(c.apparent_temperature,'°')+' ・ 現在の天気';$('highlow').textContent=round(day.temperature_2m_max[0],'°')+' / '+round(day.temperature_2m_min[0],'°');$('precip').textContent=round(day.precipitation_probability_max[0],'%');$('wind').textContent=round(c.wind_speed_10m,' km/h');$('rain').textContent=c.precipitation==null?'--':Number(c.precipitation).toFixed(1)+' mm';$('humidity').textContent=round(c.relative_humidity_2m,'%');$('sunrise').textContent=fmtHour(day.sunrise[0]);$('sunset').textContent=fmtHour(day.sunset[0]);$('advice').textContent=tip(day.precipitation_probability_max[0]??0,day.temperature_2m_max[0],c.wind_speed_10m);$('updated').textContent='確認日時：'+jDate(now)+' '+jTime(now)+'（日本時間）';const hourNow=Number(new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Tokyo',hour:'2-digit',hourCycle:'h23'}).format(now));let idx=h.time.findIndex(t=>Number(t.slice(11,13))>=hourNow);if(idx<0)idx=0;const list=h.time.map((t,i)=>({t,i})).filter((_,i)=>i>=idx);$('hours').replaceChildren(...list.map(({t,i})=>{const [label,ico]=desc(h.weather_code[i],!!h.is_day[i]);const el=document.createElement('div');el.className='hour';el.innerHTML='<div class="muted">'+(i===idx?'今から':fmtHour(t))+'</div><div class="ico" title="'+label+'">'+ico+'</div><b>'+round(h.temperature_2m[i],'°')+'</b><div class="rain">☂ '+round(h.precipitation_probability[i],'%')+'</div>';return el}));}catch(err){if(err.name==='AbortError')return;$('error').textContent='天気情報を取得できませんでした。インターネット接続を確認し、「最新情報に更新」を押してください。（'+err.message+'）';$('error').style.display='block';$('condition').textContent='取得できませんでした';$('hours').textContent='データを表示できません';}finally{$('hero').classList.remove('loading')}}
-$('city').addEventListener('change',load);$('refresh').addEventListener('click',load);load();
-</script></body></html>
