@@ -1,0 +1,33 @@
+:root {
+	--bg: #fbf7f0;
+	--surface: #ffffff;
+	--fg: #1f1b16;
+	--muted: #7a6f63;
+	--line: #e7ddcf;
+	--accent: #b3261e;
+	color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg: #16130f;
+		--surface: #211d18;
+		--fg: #f2ece3;
+		--muted: #a89c8d;
+		--line: #362f27;
+		--accent: #e0564c;
+	}
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	background: var(--bg);
+	color: var(--fg);
+	font-family:
+		'Hiragino Kaku Gothic ProN', 'Yu Gothic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	line-height: 1.7;
+}
