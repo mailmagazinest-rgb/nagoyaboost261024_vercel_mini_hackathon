@@ -1,22 +1,8 @@
 :root {
-	--bg: #fbf7f0;
-	--surface: #ffffff;
-	--fg: #1f1b16;
-	--muted: #7a6f63;
-	--line: #e7ddcf;
-	--accent: #b3261e;
-	color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-	:root {
-		--bg: #16130f;
-		--surface: #211d18;
-		--fg: #f2ece3;
-		--muted: #a89c8d;
-		--line: #362f27;
-		--accent: #e0564c;
-	}
+	font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Yu Gothic', Meiryo, sans-serif;
+	color: #162c43;
+	background: #e8f0f7;
+	color-scheme: light;
 }
 
 * {
@@ -25,9 +11,323 @@
 
 body {
 	margin: 0;
-	background: var(--bg);
-	color: var(--fg);
-	font-family:
-		'Hiragino Kaku Gothic ProN', 'Yu Gothic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	min-height: 100vh;
+	color: #162c43;
+	background: linear-gradient(155deg, #c8e4fa 0%, #e9f2fb 42%, #f9f4eb 100%);
+}
+
+.wrap {
+	max-width: 980px;
+	margin: 0 auto;
+	padding: 30px 20px 50px;
+}
+
+.top {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 28px;
+}
+
+.brand {
+	font-weight: 900;
+	font-size: 23px;
+	letter-spacing: 0.02em;
+}
+
+.muted {
+	color: #65788b;
+	font-size: 13px;
+}
+
+.tag {
+	background: #ffffff99;
+	padding: 9px 15px;
+	border: 1px solid #ffffffa6;
+	border-radius: 100px;
+	color: #315a7b;
+	font-size: 12px;
+}
+
+.hero {
+	background: linear-gradient(120deg, #133f67, #2b79ad 70%, #72afd1);
+	border-radius: 30px;
+	padding: 33px;
+	color: white;
+	box-shadow: 0 18px 45px #234b7028;
+	position: relative;
+	overflow: hidden;
+	transition: opacity 180ms ease;
+}
+
+.hero::before {
+	content: '☁';
+	position: absolute;
+	right: 45px;
+	top: 36px;
+	font-size: 145px;
+	opacity: 0.15;
+	pointer-events: none;
+}
+
+.hero.loading {
+	opacity: 0.72;
+}
+
+.selectrow {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 16px;
+}
+
+.selectrow h1 {
+	margin: 4px 0 2px;
+	font-size: clamp(24px, 4vw, 36px);
+}
+
+select,
+button {
+	font: inherit;
+}
+
+select {
+	background: #ffffffed;
+	border: 0;
+	border-radius: 12px;
+	padding: 12px 14px;
+	color: #173e60;
+	min-width: 160px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.large {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin: 28px 0 15px;
+}
+
+.weather-emoji {
+	font-size: 74px;
+	filter: drop-shadow(0 8px 10px #113e582f);
+	line-height: 1;
+}
+
+.temp {
+	font-size: clamp(64px, 10vw, 92px);
+	font-weight: 300;
+	line-height: 1;
+	letter-spacing: -5px;
+}
+
+.weather-text {
+	font-size: 22px;
+	font-weight: 700;
+}
+
+.hero-meta {
+	opacity: 0.87;
+	font-size: 14px;
+	margin-top: 5px;
+}
+
+.stats {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+	margin-top: 24px;
+}
+
+.stat {
+	background: #ffffff20;
+	border: 1px solid #ffffff2b;
+	border-radius: 18px;
+	padding: 16px;
+}
+
+.stat strong {
+	display: block;
+	font-size: 23px;
+	margin-top: 8px;
+}
+
+.stat .muted {
+	color: #d9eafa;
+}
+
+.cards {
+	display: grid;
+	grid-template-columns: 1.5fr 1fr;
+	gap: 18px;
+	margin-top: 20px;
+}
+
+.card {
+	background: #fff;
+	border: 1px solid #e7edf1;
+	border-radius: 24px;
+	padding: 23px;
+	box-shadow: 0 8px 25px #1f47600b;
+}
+
+.card h2 {
+	margin: 0 0 18px;
+	font-size: 18px;
+}
+
+.hourly {
+	display: flex;
+	gap: 11px;
+	overflow-x: auto;
+	padding: 5px 2px 10px;
+	scrollbar-color: #cad9e5 transparent;
+}
+
+.hour {
+	flex: 0 0 81px;
+	text-align: center;
+	background: #f4f8fb;
+	border-radius: 16px;
+	padding: 15px 6px;
+}
+
+.hour .ico {
+	font-size: 28px;
+	margin: 14px 0;
+}
+
+.hour b {
+	font-size: 16px;
+}
+
+.hour .rain {
+	font-size: 12px;
+	color: #2279ac;
+	margin-top: 8px;
+}
+
+.detail {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 15px;
+}
+
+.detail > div {
+	background: #f4f8fb;
+	padding: 13px;
+	border-radius: 14px;
+}
+
+.detail strong {
+	display: block;
+	margin-top: 6px;
+	font-size: 19px;
+}
+
+.detail span {
+	font-size: 12px;
+	color: #668094;
+}
+
+.advice {
+	margin-top: 18px;
+	padding: 16px 18px;
+	background: #f1f7fc;
+	border-radius: 15px;
 	line-height: 1.7;
+	font-size: 14px;
+}
+
+.foot {
+	margin-top: 18px;
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 14px;
+	align-items: center;
+	font-size: 12px;
+	color: #6d8090;
+}
+
+.refresh {
+	background: #fff;
+	border: 1px solid #c9d9e8;
+	border-radius: 12px;
+	padding: 10px 14px;
+	color: #245f8c;
+	cursor: pointer;
+	font-weight: 700;
+}
+
+.refresh:hover {
+	background: #eaf6ff;
+}
+
+.refresh:disabled {
+	cursor: wait;
+	opacity: 0.7;
+}
+
+.err {
+	color: #af3047;
+	background: #fff2f2;
+	padding: 12px 16px;
+	border-radius: 12px;
+	margin: 14px 0;
+}
+
+a {
+	color: #246b9f;
+}
+
+@media (max-width: 680px) {
+	.wrap {
+		padding: 19px 13px 35px;
+	}
+
+	.hero {
+		padding: 23px 20px;
+		border-radius: 24px;
+	}
+
+	.stats {
+		gap: 8px;
+	}
+
+	.stat {
+		padding: 12px 9px;
+	}
+
+	.stat strong {
+		font-size: 19px;
+	}
+
+	.stat .muted {
+		font-size: 11px;
+	}
+
+	.cards {
+		grid-template-columns: 1fr;
+	}
+
+	.large {
+		gap: 10px;
+	}
+
+	.weather-emoji {
+		font-size: 60px;
+	}
+
+	.brand {
+		font-size: 19px;
+	}
+
+	.tag {
+		font-size: 10px;
+		padding: 8px;
+	}
 }
